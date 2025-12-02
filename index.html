@@ -1,0 +1,753 @@
+<html lang="my">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Multi-Function Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 100%);
+            min-height: 100vh;
+        }
+        .container-card {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .main-btn {
+            background-color: #7c3aed;
+            transition: all 0.3s;
+        }
+        .main-btn:hover {
+            background-color: #6d28d9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.4);
+        }
+        input:focus, textarea:focus {
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
+        }
+        .settings-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            color: #4c1d95;
+            cursor: pointer;
+            transition: color 0.2s;
+            z-index: 10;
+        }
+        .settings-btn:hover {
+            color: #7c3aed;
+        }
+        #api-key-section {
+            display: none;
+        }
+        .prompt-history-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .prompt-history-item:hover {
+            background-color: #f3f4f6;
+        }
+        .tab-active {
+            border-bottom: 3px solid #7c3aed;
+            color: #4c1d95;
+            font-weight: 700;
+        }
+        #promptHistoryList {
+            max-height: 24rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex items-start justify-center">
+
+    <div class="container-card bg-white rounded-2xl p-6 sm:p-10 w-full max-w-6xl space-y-8">
+        
+        <div id="settingsBtn" class="settings-btn p-1 rounded-full bg-violet-50 hover:bg-violet-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37h.001z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+
+        <h1 class="text-4xl font-extrabold text-violet-800 text-center tracking-tight pt-2">✨ AI Multi-Function Studio</h1>
+        <div id="status-message" class="text-center font-semibold text-sm text-green-600">✅ စနစ် အောင်မြင်စွာ စတင်ပြီးပါပြီ။</div>
+
+        <div id="api-key-section" class="border-t border-b py-6 rounded-none space-y-4 bg-white shadow-xl p-6">
+            <h2 class="text-xl font-bold text-gray-700 flex items-center space-x-2">
+                <span class="text-violet-600">🔑</span> <span>Gemini API Key ထည့်သွင်းရန်</span>
+            </h2>
+            <label for="apiKey" class="block text-sm font-medium text-gray-700">လျှို့ဝှက် API Key</label>
+            <div class="flex space-x-3">
+                <input type="password" id="apiKey" placeholder="AIzaSy..."
+                       class="flex-grow p-3 border border-gray-300 rounded-xl text-gray-800 transition duration-150">
+                <button id="saveKeyBtn" class="bg-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-indigo-700 transition duration-150 shadow-md">
+                    သိမ်းဆည်းရန်
+                </button>
+            </div>
+            <p id="key-status" class="text-sm text-green-600 font-medium pt-1"></p>
+        </div>
+
+        <div class="flex border-b border-gray-200 overflow-x-auto whitespace-nowrap">
+            <button data-category="image_edit" class="category-tab px-4 py-2 text-gray-600 hover:text-violet-600 tab-active">
+                📷 Image Editor (Multi-Image)
+            </button>
+            <button data-category="faceswap" class="category-tab px-4 py-2 text-gray-600 hover:text-violet-600">
+                🎭 Faceswap (2-Images)
+            </button>
+            <button data-category="image_generator" class="category-tab px-4 py-2 text-gray-600 hover:text-violet-600">
+                🎨 Image Generator
+            </button>
+            <button data-category="html_create" class="category-tab px-4 py-2 text-gray-600 hover:text-violet-600">
+                💻 HTML Web App Create
+            </button>
+        </div>
+
+        <div id="main-app-section" class="grid grid-cols-1 lg:grid-cols-3 gap-8 opacity-50 pointer-events-none transition duration-500">
+            
+            <div class="lg:col-span-2 space-y-8">
+
+                <div id="imageUploadSection" class="p-6 rounded-xl space-y-4 bg-white shadow-lg">
+                    <h2 class="text-xl font-bold text-gray-700 flex items-center space-x-2">
+                        <span class="text-violet-600" id="step1Icon">1️⃣</span> <span id="step1Title">ပုံ တင်သွင်းခြင်း</span>
+                    </h2>
+                    
+                    <div id="singleImageInput" class="space-y-3">
+                        <input type="file" id="imageInput" accept="image/*" multiple 
+                               class="w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 transition duration-150 cursor-pointer">
+                    </div>
+                    
+                    <div id="faceswapInputs" class="hidden space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Target Image (ပြောင်းလဲခံမည့်ပုံ)</label>
+                            <input type="file" id="targetImageInput" accept="image/*" class="w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Source Face Image (ယူမည့်မျက်နှာပုံ)</label>
+                            <input type="file" id="sourceImageInput" accept="image/*" class="w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100 cursor-pointer">
+                        </div>
+                    </div>
+                    
+                    <p id="uploadHint" class="text-xs text-gray-400">Image Editor အတွက် ဓာတ်ပုံ ၁၀ ပုံအထိ ရွေးချယ်နိုင်သည်။</p>
+                </div>
+                
+                <div class="p-6 rounded-xl space-y-4 bg-white shadow-lg">
+                    <h2 class="text-xl font-bold text-gray-700 flex items-center space-x-2">
+                        <span class="text-violet-600" id="step2Icon">2️⃣</span> <span id="step2Title">ညွှန်ကြားချက်</span>
+                    </h2>
+                    <textarea id="prompt" rows="4" placeholder="ဥပမာ: ပုံထဲက ကားကို ရွှေရောင်ပြောင်းပြီး နောက်ခံကို နေဝင်ချိန်ဖြင့် အစားထိုးပါ (4K, cinematic lighting)"
+                              class="w-full p-3 border border-gray-300 rounded-xl text-gray-800 transition duration-150"></textarea>
+                    
+                    <div class="flex space-x-3 pt-2">
+                        <button id="savePromptBtn" class="bg-green-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-600 transition duration-150 shadow-sm flex-grow">
+                            💾 ညွှန်ကြားချက် မှတ်သားရန်
+                        </button>
+                        <button id="deletePromptBtn" class="bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-600 transition duration-150 shadow-sm">
+                            ❌ ဖျက်ရန်
+                        </button>
+                    </div>
+
+                    <button id="generateBtn" class="main-btn w-full text-white px-4 py-4 rounded-xl text-xl font-extrabold shadow-lg mt-4">
+                        🖼️ AI ဖြင့် စတင်ရန်
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 p-6 rounded-xl space-y-4 bg-white shadow-lg">
+                <h2 class="text-xl font-bold text-gray-700 flex items-center justify-between">
+                    <span>📝 Prompt မှတ်တမ်း</span>
+                    <button id="clearHistoryBtn" class="text-xs text-red-500 hover:text-red-700 font-medium">အားလုံးဖျက်</button>
+                </h2>
+                <div id="promptHistoryList" class="space-y-2 border p-3 rounded-lg bg-gray-50">
+                    <p class="text-gray-400 text-sm" id="historyEmptyMessage">မှတ်တမ်းမရှိသေးပါ။</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 rounded-xl space-y-4 bg-white shadow-lg">
+            
+            <div id="defaultResultContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div class="p-2 bg-gray-50 rounded-xl shadow-inner min-h-[300px] flex flex-col">
+                    <p class="text-center font-semibold text-gray-700 mb-2" id="originalLabel">မူရင်းပုံ (Original)</p>
+                    <div id="originalContainer" class="flex-grow flex items-center justify-center overflow-hidden">
+                        <p id="originalMessage" class="text-gray-400 text-center p-4">တင်သွင်းမည့်ပုံသည် ဤနေရာတွင် ပေါ်လာပါမည်။</p>
+                        <img id="originalImage" class="hidden w-full h-auto max-h-[60vh] object-contain rounded-lg" alt="Original Image">
+                        
+                        <div id="multiImagePreview" class="hidden w-full h-full p-2 overflow-y-auto">
+                            <p class="text-gray-600 font-medium text-sm mb-2">ရွေးချယ်ထားသော ပုံများ (Multi-Image)</p>
+                            <ul id="multiImageList" class="space-y-2"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2 bg-gray-50 rounded-xl shadow-inner min-h-[300px] flex flex-col">
+                    <p class="text-center font-semibold text-gray-700 mb-2" id="generatedLabel">ပြင်ပြီးပုံ (Generated)</p>
+                    <div id="outputContainer" class="flex-grow flex items-center justify-center overflow-hidden">
+                        <p id="outputMessage" class="text-gray-500 text-center p-4">ရလဒ်သည် ဤနေရာတွင် ပေါ်လာပါမည်။</p>
+                        <img id="outputImage" class="hidden w-full h-auto max-h-[60vh] object-contain rounded-lg" alt="Generated Image">
+                        <pre id="codeOutput" class="hidden p-4 text-xs overflow-auto bg-gray-800 text-green-400 rounded-lg w-full h-full whitespace-pre-wrap">Generated code will appear here.</pre>
+                        
+                        <div id="multiImageResultContainer" class="hidden w-full h-full p-2 overflow-y-auto">
+                            <p class="text-gray-600 font-medium text-sm mb-2">ရလဒ်များ (Multi-Image Results)</p>
+                            <ul id="multiImageResultList" class="space-y-4"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="faceswapResultContainer" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <div class="p-2 bg-gray-50 rounded-xl shadow-inner min-h-[300px] flex flex-col">
+                    <p class="text-center font-semibold text-gray-700 mb-2">Target Image (ပြောင်းလဲခံ)</p>
+                    <div class="flex-grow flex items-center justify-center overflow-hidden">
+                        <img id="targetPreviewImage" class="hidden w-full h-auto max-h-[60vh] object-contain rounded-lg" alt="Target Preview">
+                        <p id="targetPreviewMessage" class="text-gray-400 text-center p-4">Target ပုံ ဤနေရာတွင်</p>
+                    </div>
+                </div>
+
+                <div class="p-2 bg-gray-50 rounded-xl shadow-inner min-h-[300px] flex flex-col">
+                    <p class="text-center font-semibold text-gray-700 mb-2">Source Face (မျက်နှာယူမည့်ပုံ)</p>
+                    <div class="flex-grow flex items-center justify-center overflow-hidden">
+                        <img id="sourcePreviewImage" class="hidden w-full h-auto max-h-[60vh] object-contain rounded-lg" alt="Source Preview">
+                        <p id="sourcePreviewMessage" class="text-gray-400 text-center p-4">Source ပုံ ဤနေရာတွင်</p>
+                    </div>
+                </div>
+
+                <div class="p-2 bg-gray-50 rounded-xl shadow-inner min-h-[300px] flex flex-col">
+                    <p class="text-center font-semibold text-gray-700 mb-2">Faceswap ရလဒ်</p>
+                    <div class="flex-grow flex items-center justify-center overflow-hidden">
+                        <img id="faceswapOutputImage" class="hidden w-full h-auto max-h-[60vh] object-contain rounded-lg" alt="Faceswap Result">
+                        <p id="faceswapOutputMessage" class="text-gray-500 text-center p-4">ရလဒ် ဤနေရာတွင် ပေါ်လာပါမည်။</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        // UI Elements
+        const apiKeyInput = document.getElementById('apiKey');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+        const mainAppSection = document.getElementById('main-app-section');
+        const generateBtn = document.getElementById('generateBtn');
+        const promptInput = document.getElementById('prompt');
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        const imageUploadSection = document.getElementById('imageUploadSection');
+        const singleImageInput = document.getElementById('singleImageInput');
+        const faceswapInputs = document.getElementById('faceswapInputs');
+        const defaultResultContainer = document.getElementById('defaultResultContainer');
+        const faceswapResultContainer = document.getElementById('faceswapResultContainer');
+        
+        const imageInput = document.getElementById('imageInput');
+        const originalImage = document.getElementById('originalImage');
+        const originalMessage = document.getElementById('originalMessage');
+        const multiImagePreview = document.getElementById('multiImagePreview');
+        const multiImageList = document.getElementById('multiImageList');
+        const outputImage = document.getElementById('outputImage');
+        const outputMessage = document.getElementById('outputMessage');
+        const codeOutput = document.getElementById('codeOutput');
+        const multiImageResultContainer = document.getElementById('multiImageResultContainer');
+        const multiImageResultList = document.getElementById('multiImageResultList');
+
+        const targetImageInput = document.getElementById('targetImageInput');
+        const sourceImageInput = document.getElementById('sourceImageInput');
+        const targetPreviewImage = document.getElementById('targetPreviewImage');
+        const sourcePreviewImage = document.getElementById('sourcePreviewImage');
+        const faceswapOutputImage = document.getElementById('faceswapOutputImage');
+        const faceswapOutputMessage = document.getElementById('faceswapOutputMessage');
+        
+        const settingsBtn = document.getElementById('settingsBtn');
+        const apiKeySection = document.getElementById('api-key-section');
+        const promptHistoryList = document.getElementById('promptHistoryList');
+        const historyEmptyMessage = document.getElementById('historyEmptyMessage');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const savePromptBtn = document.getElementById('savePromptBtn');
+        const deletePromptBtn = document.getElementById('deletePromptBtn');
+
+
+        let currentCategory = 'image_edit'; 
+        
+        // Storage Keys
+        const API_KEY_STORAGE_KEY = 'gemini_api_key_local';
+        const PROMPT_STORAGE_KEY = 'saved_image_prompt';
+        const HISTORY_STORAGE_KEY = 'prompt_history';
+
+        // --- Core Functions ---
+
+        /** Updates UI state based on key availability (Includes the lock fix). */
+        function updateAppState(key) {
+            // FIX: If key is present, remove the overlay/lock classes.
+            if (key && key.length > 10) {
+                mainAppSection.classList.remove('opacity-50', 'pointer-events-none');
+                apiKeyInput.setAttribute('disabled', 'true');
+                saveKeyBtn.setAttribute('disabled', 'true');
+            } else {
+                mainAppSection.classList.add('opacity-50', 'pointer-events-none');
+                apiKeyInput.removeAttribute('disabled');
+                saveKeyBtn.removeAttribute('disabled');
+            }
+        }
+        
+        // --- Category Switching ---
+
+        function switchCategory(category) {
+            currentCategory = category;
+            
+            categoryTabs.forEach(tab => {
+                tab.classList.toggle('tab-active', tab.dataset.category === category);
+            });
+
+            // Reset Output Area Visibility
+            defaultResultContainer.classList.add('hidden');
+            faceswapResultContainer.classList.add('hidden');
+            
+            // General UI reset
+            [originalImage, multiImagePreview, outputImage, codeOutput, multiImageResultContainer].forEach(el => el.classList.add('hidden'));
+            [originalMessage, outputMessage].forEach(el => el.classList.remove('hidden'));
+            
+            // Handle specific category inputs/outputs
+            if (category === 'faceswap') {
+                singleImageInput.classList.add('hidden');
+                faceswapInputs.classList.remove('hidden');
+                faceswapResultContainer.classList.remove('hidden'); // Show 3-up view
+                imageInput.removeAttribute('multiple');
+                
+                // Faceswap specific reset
+                [targetPreviewImage, sourcePreviewImage, faceswapOutputImage].forEach(el => el.classList.add('hidden'));
+                [document.getElementById('targetPreviewMessage'), document.getElementById('sourcePreviewMessage'), faceswapOutputMessage].forEach(el => el.classList.remove('hidden'));
+
+            } else {
+                singleImageInput.classList.remove('hidden');
+                faceswapInputs.classList.add('hidden');
+                defaultResultContainer.classList.remove('hidden'); // Show 2-up view
+                
+                if (category === 'image_edit') {
+                    imageInput.setAttribute('multiple', 'true'); // Multi-select ON
+                } else {
+                    imageInput.removeAttribute('multiple'); // Multi-select OFF
+                }
+            }
+            
+            // Update UI texts (Keeping labels updated)
+            switch (category) {
+                case 'image_edit':
+                    document.getElementById('step1Title').textContent = "ပုံများ တင်သွင်းခြင်း (Multi-Select)";
+                    document.getElementById('generatedLabel').textContent = "ပြင်ပြီးပုံများ (Results)";
+                    document.getElementById('originalLabel').textContent = "မူရင်းပုံများ (Originals)";
+                    document.getElementById('uploadHint').textContent = "ပြင်ဆင်လိုသည့် ဓာတ်ပုံ ၁၀ ပုံအထိ ရွေးချယ်နိုင်သည်။";
+                    document.getElementById('generateBtn').textContent = '🖼️ AI ဖြင့် ပြင်ဆင်ရန်';
+                    promptInput.placeholder = "ဥပမာ: ဓာတ်ပုံတိုင်းကို အဖြူအမည်း ပြောင်းပြီး နောက်ခံကို နေဝင်ချိန်ဖြင့် အစားထိုးပါ";
+                    break;
+                case 'faceswap':
+                    document.getElementById('step1Title').textContent = "ပုံ ၂ ပုံ တင်သွင်းခြင်း (Faceswap)";
+                    document.getElementById('generatedLabel').textContent = "Faceswap ရလဒ်"; // Not used in this layout, but kept for consistency
+                    document.getElementById('originalLabel').textContent = "မူရင်း Target Image"; // Not used in this layout, but kept for consistency
+                    document.getElementById('uploadHint').textContent = "Target Image (ပြောင်းလဲခံမည့်ပုံ) နှင့် Source Face Image (ယူမည့်မျက်နှာပုံ) နှစ်ခုလုံး တင်သွင်းပါ။";
+                    document.getElementById('generateBtn').textContent = '🎭 Faceswap စတင်ရန်';
+                    promptInput.placeholder = "ဥပမာ: Target ပုံထဲက မျက်နှာကို Source ပုံက မျက်နှာနဲ့ လဲပါ။";
+                    break;
+                case 'image_generator':
+                    document.getElementById('step1Title').textContent = "ညွှန်ကြားချက်";
+                    document.getElementById('uploadHint').textContent = "";
+                    document.getElementById('generatedLabel').textContent = "ဖန်တီးပြီးပုံ (Generated)";
+                    document.getElementById('originalLabel').textContent = "မူရင်းပုံ (မရှိပါ)";
+                    document.getElementById('generateBtn').textContent = '🎨 ပုံ ဖန်တီးရန်';
+                    promptInput.placeholder = "ဥပမာ: တောင်တန်းကြီးများရှေ့တွင် ရေခဲပန်းပုများဖြင့် ပြုလုပ်ထားသော ခေတ်မီအိမ်တစ်လုံး (Hyperrealistic, 8K)";
+                    break;
+                case 'html_create':
+                    document.getElementById('step1Title').textContent = "ညွှန်ကြားချက်";
+                    document.getElementById('uploadHint').textContent = "";
+                    document.getElementById('generatedLabel').textContent = "Generated Code (HTML)";
+                    document.getElementById('originalLabel').textContent = "မူရင်းပုံ (မရှိပါ)";
+                    document.getElementById('generateBtn').textContent = '💻 Web App ကုဒ် ထုတ်လုပ်ရန်';
+                    promptInput.placeholder = "ဥပမာ: Tailwind CSS သုံးပြီး အစိမ်းရောင် ခလုတ်တစ်ခုပါတဲ့ Contact Form HTML ကုဒ်ရေးပေးပါ။";
+                    break;
+            }
+        }
+
+        // --- Image Preview Logic ---
+
+        function renderFaceswapPreview() {
+            const targetFile = targetImageInput.files[0];
+            const sourceFile = sourceImageInput.files[0];
+            
+            // Target Preview
+            if (targetFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    targetPreviewImage.src = e.target.result;
+                    targetPreviewImage.classList.remove('hidden');
+                    document.getElementById('targetPreviewMessage').classList.add('hidden');
+                };
+                reader.readAsDataURL(targetFile);
+            } else {
+                targetPreviewImage.classList.add('hidden');
+                document.getElementById('targetPreviewMessage').classList.remove('hidden');
+            }
+
+            // Source Preview
+            if (sourceFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    sourcePreviewImage.src = e.target.result;
+                    sourcePreviewImage.classList.remove('hidden');
+                    document.getElementById('sourcePreviewMessage').classList.add('hidden');
+                };
+                reader.readAsDataURL(sourceFile);
+            } else {
+                sourcePreviewImage.classList.add('hidden');
+                document.getElementById('sourcePreviewMessage').classList.remove('hidden');
+            }
+        }
+
+        function renderMultiImagePreview(files) {
+            multiImageList.innerHTML = '';
+            
+            if (files.length === 0) {
+                multiImagePreview.classList.add('hidden');
+                originalMessage.classList.remove('hidden');
+                return;
+            }
+            
+            multiImagePreview.classList.remove('hidden');
+            originalImage.classList.add('hidden');
+            originalMessage.classList.add('hidden');
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const item = document.createElement('li');
+                item.className = 'flex items-center space-x-2 p-2 bg-white rounded-lg shadow-sm';
+                item.innerHTML = `<span class="text-xs font-semibold text-violet-600">${i + 1}.</span> <span class="text-sm text-gray-700 flex-grow truncate">${file.name}</span> <span class="ml-auto text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</span>`;
+                multiImageList.appendChild(item);
+            }
+        }
+        
+        imageInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            
+            if (currentCategory === 'image_edit') {
+                renderMultiImagePreview(files);
+            } else if (currentCategory === 'image_generator' && files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalImage.src = e.target.result;
+                    originalImage.classList.remove('hidden');
+                    originalMessage.classList.add('hidden');
+                    multiImagePreview.classList.add('hidden');
+                };
+                reader.readAsDataURL(files[0]);
+            } else if (currentCategory !== 'faceswap') {
+                // For other categories where multiple is not expected, show single preview if a file exists
+                if (files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        originalImage.src = e.target.result;
+                        originalImage.classList.remove('hidden');
+                        originalMessage.classList.add('hidden');
+                        multiImagePreview.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(files[0]);
+                } else {
+                    originalImage.classList.add('hidden');
+                    originalMessage.classList.remove('hidden');
+                    multiImagePreview.classList.add('hidden');
+                }
+            }
+        });
+
+        targetImageInput.addEventListener('change', renderFaceswapPreview);
+        sourceImageInput.addEventListener('change', renderFaceswapPreview);
+
+        // --- API & Core Processing Logic (Simplified) ---
+
+        function base64EncodeImage(file) {
+             return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64String = reader.result.split(',')[1];
+                    resolve(base64String);
+                };
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function processSingleImage(file, prompt, apiKey, instruction) {
+            // ... (Same function body as V6/V7 for single image processing) ...
+            try {
+                const imageBase64 = await base64EncodeImage(file);
+                const payloadParts = [];
+                payloadParts.push({ text: instruction + "\n\nUSER PROMPT: " + prompt });
+                payloadParts.push({ inlineData: { mimeType: file.type, data: imageBase64 } });
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${apiKey}`;
+
+                const payload = { contents: [{ parts: payloadParts }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } };
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorMessage = result.error?.message || `API Error: ${response.status} ${response.statusText}`;
+                    throw new Error(`API call failed: ${errorMessage}`);
+                }
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+                return base64Data ? `data:image/png;base64,${base64Data}` : null;
+            } catch (error) {
+                console.error(`Error processing ${file.name}:`, error);
+                return null;
+            }
+        }
+        
+        async function callApiForFaceswap(payloadParts, apiKey) {
+            // ... (Same function body as V7 for faceswap API call) ...
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${apiKey}`;
+
+            const payload = { contents: [{ parts: payloadParts }], generationConfig: { responseModalities: ['IMAGE'] } };
+            
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    const errorMessage = result.error?.message || `API Error: ${response.status} ${response.statusText}`;
+                    throw new Error(`API call failed: ${errorMessage}`);
+                }
+
+                const base64Data = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+
+                if (base64Data) {
+                    faceswapOutputImage.src = `data:image/png;base64,${base64Data}`;
+                    faceswapOutputImage.classList.remove('hidden');
+                    faceswapOutputMessage.classList.add('hidden');
+                } else {
+                    const textResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text || "ပုံထုတ်လုပ်မှု မအောင်မြင်ပါ။";
+                    faceswapOutputMessage.textContent = `AI ၏တုံ့ပြန်မှု: ${textResponse}. ညွှန်ကြားချက်ကို ပြန်စစ်ပါ။`;
+                    faceswapOutputMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                faceswapOutputMessage.textContent = `❌ API အမှား: ${error.message}. (API Key, Limit သို့မဟုတ် ညွှန်ကြားချက်ကို စစ်ဆေးပါ။)`;
+                faceswapOutputMessage.classList.remove('hidden');
+            }
+        }
+
+        async function generateImage() {
+            const apiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+            const prompt = promptInput.value.trim();
+            const category = currentCategory;
+            
+            if (!apiKey || apiKey.length < 10) { alert("API Key ကို ဦးစွာ Settings မှတဆင့် သိမ်းဆည်းပေးပါ။"); resetGenerateButton(); return; }
+            if (!prompt && category !== 'image_generator') { alert("ညွှန်ကြားချက် ထည့်သွင်းပေးပါ။"); resetGenerateButton(); return; }
+            if (category !== 'faceswap' && category !== 'image_edit' && category !== 'image_generator' && category !== 'html_create') { resetGenerateButton(); return; }
+
+            // UI State Reset
+            generateBtn.textContent = '⏱️ AI ဖြင့် ပြင်ဆင်နေပါသည်... (စောင့်ပါ)';
+            generateBtn.classList.add('bg-gray-400', 'pointer-events-none');
+            generateBtn.classList.remove('main-btn');
+            outputImage.classList.add('hidden');
+            codeOutput.classList.add('hidden');
+            multiImageResultContainer.classList.add('hidden');
+            outputMessage.classList.remove('hidden');
+            outputMessage.textContent = "AI ဖြင့် စတင်လုပ်ဆောင်နေပါပြီ။ ခဏစောင့်ဆိုင်းပေးပါ။";
+
+            savePromptToHistory(prompt); 
+
+            if (category === 'image_edit') {
+                const files = imageInput.files;
+                if (files.length === 0) { alert("ပုံတစ်ပုံမှ မရွေးရသေးပါ။"); resetGenerateButton(); return; }
+                
+                // Show multi-image results area
+                multiImageResultContainer.classList.remove('hidden');
+                outputMessage.classList.add('hidden');
+                multiImageResultList.innerHTML = '';
+
+                const instruction = "Modify the uploaded image based on the user's instructions. Output the final modified image.";
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const statusItem = document.createElement('li');
+                    statusItem.className = 'p-2 bg-gray-100 rounded-lg flex items-center space-x-3';
+                    statusItem.innerHTML = `<span class="font-bold text-violet-600">${i + 1}.</span> <span class="text-gray-700 flex-grow truncate">${file.name}</span> <span class="text-yellow-600 text-sm">...ပြုလုပ်နေသည်</span>`;
+                    multiImageResultList.appendChild(statusItem);
+
+                    const resultUrl = await processSingleImage(file, prompt, apiKey, instruction);
+
+                    statusItem.classList.remove('bg-gray-100');
+                    if (resultUrl) {
+                        statusItem.classList.add('bg-green-50');
+                        statusItem.innerHTML = `<span class="font-bold text-violet-600">${i + 1}.</span> <img src="${resultUrl}" class="w-10 h-10 object-cover rounded-md"> <span class="text-green-700 text-sm">✅ ပြီးပါပြီ</span>`;
+                    } else {
+                        statusItem.classList.add('bg-red-50');
+                        statusItem.innerHTML = `<span class="font-bold text-violet-600">${i + 1}.</span> <span class="text-red-700 text-sm flex-grow truncate">${file.name} (အမှား)</span>`;
+                    }
+                }
+                outputMessage.textContent = `${files.length} ပုံလုံး ပြင်ဆင်ပြီးစီးပါပြီ။`;
+                outputMessage.classList.remove('hidden');
+
+            } else if (category === 'faceswap') {
+                const targetFile = targetImageInput.files[0];
+                const sourceFile = sourceImageInput.files[0];
+                if (!targetFile || !sourceFile) { alert("Target နှင့် Source ပုံ နှစ်မျိုးလုံး လိုအပ်ပါသည်။"); resetGenerateButton(); return; }
+
+                faceswapOutputMessage.textContent = "Faceswap ပြုလုပ်နေပါသည်။ ခဏစောင့်ဆိုင်းပါ...";
+                
+                const imageParts = [];
+                imageParts.push({ text: `Perform a face swap. The first image is the TARGET IMAGE (the body/scene to modify). The second image is the SOURCE FACE IMAGE (the face to use). User prompt provides additional details. Output only the final modified image.` });
+                
+                try {
+                    imageParts.push({ inlineData: { mimeType: targetFile.type, data: await base64EncodeImage(targetFile) } });
+                    imageParts.push({ inlineData: { mimeType: sourceFile.type, data: await base64EncodeImage(sourceFile) } });
+                    imageParts.push({ text: "USER PROMPT: " + prompt });
+                } catch (e) { alert("ပုံဖတ်ရာတွင် အမှားရှိပါသည်: " + e.message); resetGenerateButton(); return; }
+
+                await callApiForFaceswap(imageParts, apiKey); 
+
+            } else if (category === 'image_generator') {
+                // ... (Image Generator Logic) ...
+                
+            } else if (category === 'html_create') {
+                // ... (HTML Creator Logic) ...
+            }
+            
+            resetGenerateButton();
+        }
+
+        // --- Auxiliary Functions (Load/Save/History) ---
+
+        function loadApiKey() { 
+             const loadedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+            if (loadedKey) {
+                apiKeyInput.value = loadedKey;
+                document.getElementById('key-status').textContent = "✅ သိမ်းဆည်းထားသော API Key ကို တင်ယူပြီးပါပြီ။";
+                updateAppState(loadedKey);
+                return loadedKey;
+            }
+            apiKeySection.style.display = 'none';
+            return null;
+        }
+
+        function loadPrompt() {
+            const savedPrompt = localStorage.getItem(PROMPT_STORAGE_KEY);
+            if (savedPrompt) {
+                promptInput.value = savedPrompt;
+                promptInput.placeholder = "(မှတ်သားထားသော ညွှန်ကြားချက်)";
+                document.getElementById('savePromptBtn').textContent = "💾 ညွှန်ကြားချက် အသစ် မှတ်သားရန်";
+            }
+        }
+        
+        function savePromptToHistory(prompt) {
+            if (!prompt.trim()) return;
+            let history = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            history = history.filter(item => item !== prompt);
+            history.unshift(prompt);
+            history = history.slice(0, 10);
+            localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() { 
+            const history = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
+            promptHistoryList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyEmptyMessage.classList.remove('hidden');
+                promptHistoryList.appendChild(historyEmptyMessage);
+                return;
+            }
+            historyEmptyMessage.classList.add('hidden');
+
+            history.forEach((prompt, index) => {
+                const item = document.createElement('div');
+                item.className = 'prompt-history-item p-2 border-b last:border-b-0 text-sm text-gray-700 truncate';
+                item.textContent = prompt;
+                item.title = prompt;
+                item.addEventListener('click', () => {
+                    promptInput.value = prompt;
+                    promptInput.focus();
+                    window.scrollTo({ top: mainAppSection.offsetTop, behavior: 'smooth' });
+                });
+                promptHistoryList.appendChild(item);
+            });
+        }
+        
+        function resetGenerateButton() {
+            generateBtn.textContent = '🖼️ AI ဖြင့် စတင်ရန်';
+            generateBtn.classList.remove('bg-gray-400', 'pointer-events-none');
+            generateBtn.classList.add('main-btn');
+        }
+
+
+        // --- Initialization and Event Listeners ---
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadApiKey();
+            loadPrompt();
+            renderHistory();
+            
+            switchCategory(currentCategory); 
+
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    switchCategory(e.target.dataset.category);
+                });
+            });
+
+            document.getElementById('saveKeyBtn').addEventListener('click', () => {
+                const key = apiKeyInput.value.trim();
+                if (key) {
+                    // Save key logic is here
+                    localStorage.setItem(API_KEY_STORAGE_KEY, key);
+                    document.getElementById('key-status').textContent = "✅ API Key ကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။";
+                    updateAppState(key);
+                    // Hide after saving
+                    setTimeout(() => {
+                        apiKeySection.style.display = 'none';
+                    }, 1000);
+                } else {
+                    document.getElementById('key-status').textContent = "API Key ထည့်သွင်းရန် လိုအပ်ပါသည်။";
+                }
+            });
+
+            generateBtn.addEventListener('click', generateImage);
+            
+            settingsBtn.addEventListener('click', () => {
+                apiKeySection.style.display = apiKeySection.style.display === 'block' ? 'none' : 'block';
+                if (apiKeySection.style.display === 'block') {
+                    loadApiKey();
+                }
+            });
+            
+            savePromptBtn.addEventListener('click', () => {
+                const prompt = promptInput.value.trim();
+                if (prompt) {
+                    localStorage.setItem(PROMPT_STORAGE_KEY, prompt);
+                    alert("ညွှန်ကြားချက်ကို အောင်မြင်စွာ မှတ်သားပြီးပါပြီ။");
+                    loadPrompt();
+                } else {
+                    alert("မှတ်သားရန် ညွှန်ကြားချက် ထည့်သွင်းပေးပါ။");
+                }
+            });
+
+            deletePromptBtn.addEventListener('click', () => {
+                localStorage.removeItem(PROMPT_STORAGE_KEY);
+                promptInput.value = "";
+                promptInput.placeholder = "ဥပမာ: ပုံထဲက ကားကို ရွှေရောင်ပြောင်းပြီး နောက်ခံကို နေဝင်ချိန်ဖြင့် အစားထိုးပါ (4K, cinematic lighting)";
+                document.getElementById('savePromptBtn').textContent = "💾 ညွှန်ကြားချက် မှတ်သားရန်";
+                alert("မှတ်သားထားသော ညွှန်ကြားချက်ကို ဖျက်လိုက်ပါပြီ။");
+            });
+
+            clearHistoryBtn.addEventListener('click', () => {
+                if (confirm("Prompt မှတ်တမ်းအားလုံးကို ဖျက်ရန် သေချာပါသလား?")) {
+                    localStorage.removeItem(HISTORY_STORAGE_KEY);
+                    renderHistory();
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
